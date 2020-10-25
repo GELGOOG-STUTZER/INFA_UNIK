@@ -33,19 +33,16 @@ void passenger (int sem_id, int pass_num) {
 	struct sembuf op; // создаем структуру для операций с семафорами
 	while(1)
 	{
-
-		change(RAMP_DOWN, 0);
+		change(CRUISE_START, 0);
 		if (semctl(sem_id, LAST_TRIP, GETVAL))
 			break;
+		change(RAMP_DOWN, 0);
 		change (ON_BOAT, -1);
-		if (semctl(sem_id, LAST_TRIP, GETVAL))
-                        break;
                 change(ON_RAMP, -1);
 		printf("Passenger %d on ramp\n", pass_num);
 		change(ON_RAMP, 1);
 		printf("Passenger %d on ship\n", pass_num);
 		
-		change(CRUISE_START, 0);
 		change(CRUISE_END, 0);
 
 		change(RAMP_DOWN, 0);
@@ -55,6 +52,8 @@ void passenger (int sem_id, int pass_num) {
 		printf("Passenger %d on beach\n", pass_num);
 		change(ON_BOAT, 1);
 		change(WANT_GO, -1);
+		if (semctl(sem_id, LAST_TRIP, GETVAL))
+			break;
 	}
 }
 
@@ -88,10 +87,9 @@ void ship_cap (int sem_id, int boat_size, int ladder_size, int num_steps) {
 		change(CRUISE_END, 1);
 		change(WANT_GO, boat_size);
 
-		if(i == num_steps - 1)
-			break;
-
 		change(CRUISE_START, -1);
+		if(i == num_steps - 1)
+                        break;
 	}
 }
 
@@ -119,11 +117,11 @@ int main (int argc, char **argv) {
 	change(CRUISE_START, 1);
 	change(ON_RAMP, ladder_size);
 	if (boat_size < num_pass) {
-		change(ON_BOAT, boat_size);
-		change(WANT_GO, boat_size);
+		semctl(sem_id, ON_BOAT, SETVAL, boat_size);
+		semctl(sem_id, WANT_GO, SETVAL, boat_size);
 	}
 	else {
-		change(ON_BOAT, boat_size);
+		change(ON_BOAT, num_pass);
 		change(WANT_GO, num_pass);
 	}
 
@@ -152,6 +150,7 @@ int main (int argc, char **argv) {
 	}
 	int wstatus;
 	waitpid(cap_pid, &wstatus, 0);
+	
 	return 0;
 }
 
