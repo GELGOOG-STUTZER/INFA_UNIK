@@ -34,14 +34,14 @@ void passenger (int sem_id, int pass_num) {
 	while(1)
 	{
 		change(CRUISE_START, 0);
-		if (semctl(sem_id, LAST_TRIP, GETVAL))
-			break;
 		change(RAMP_DOWN, 0);
 		change (ON_BOAT, -1);
                 change(ON_RAMP, -1);
 		printf("Passenger %d on ramp\n", pass_num);
 		change(ON_RAMP, 1);
 		printf("Passenger %d on ship\n", pass_num);
+		if (semctl(sem_id, LAST_TRIP, GETVAL))
+                        break;
 		
 		change(CRUISE_END, 0);
 
@@ -53,7 +53,7 @@ void passenger (int sem_id, int pass_num) {
 		change(ON_BOAT, 1);
 		change(WANT_GO, -1);
 		if (semctl(sem_id, LAST_TRIP, GETVAL))
-			break;
+                        break;
 	}
 }
 
@@ -82,14 +82,16 @@ void ship_cap (int sem_id, int boat_size, int ladder_size, int num_steps) {
 		change(CRUISE_END, -1);
 
 		change(RAMP_DOWN, -1);
+		if(i == num_steps - 1) {
+                        printf("END OF PROGRAMME\n");
+                        break;
+                }
 
 		change(WANT_GO, 0);
 		change(CRUISE_END, 1);
 		change(WANT_GO, boat_size);
 
 		change(CRUISE_START, -1);
-		if(i == num_steps - 1)
-                        break;
 	}
 }
 
