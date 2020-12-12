@@ -3,14 +3,19 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <pwd.h>
 #include <grp.h>
 #include <dirent.h>
 
 void dir_count(char* path,int* count) {
      char new_path[1000];
+     struct stat* buf1;
+     struct stat* buff;
+     int status;
      struct dirent *current;
      DIR *dir = opendir(path);
+     status = stat("/proc", buff);
 
      if(!dir) {
         return;
@@ -18,14 +23,16 @@ void dir_count(char* path,int* count) {
 
      current = readdir(dir);
      while(current != NULL) {
-        if((strcmp(current->d_name, "." ) != 0) && (strcmp(current->d_name, "..") != 0)) {
-             
+        if((strcmp(current->d_name, "." ) != 0) && (strcmp(current->d_name, "..") != 0)) { 
             *count = *count + 1;
-            printf("Count = %d\n", *count);
-            strcpy(new_path, path);
+            status = stat(current->d_name, buf1);
+            if(buf1->st_mode == buff->st_mode) {
+                strcpy(new_path, path);
             strcat(new_path, "/");
             strcat(new_path, current->d_name);
+            printf("%s\n", new_path);
             dir_count(new_path, count);
+            }
         }
         current = readdir(dir);
     }
