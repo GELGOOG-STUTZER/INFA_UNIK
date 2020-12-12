@@ -15,6 +15,7 @@ int main (int argc, char* argv[]) {
     current = readdir(dir);
     while(current != NULL) {
     puts(current->d_name);
+    current = readdir(dir);
     }
 }
 
