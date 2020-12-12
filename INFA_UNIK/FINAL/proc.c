@@ -16,9 +16,10 @@ void dir_count(char* path,int* count) {
         return;
      }
 
-     while((current = readdir(dir)) != NULL) {
+     current = readdir(dir);
+     while(current != NULL) {
         if((strcmp(current->d_name, "." ) != 0) && (strcmp(current->d_name, "..") != 0)) {
-            
+             
             *count = *count + 1;
             printf("Count = %d\n", *count);
             strcpy(new_path, path);
@@ -26,6 +27,7 @@ void dir_count(char* path,int* count) {
             strcat(new_path, current->d_name);
             dir_count(new_path, count);
         }
+        current = readdir(dir);
     }
     closedir(dir);
     return;
@@ -40,13 +42,14 @@ int main (int argc, char* argv[]) {
     dir = opendir("/proc");
     current = readdir(dir);
     while(current != NULL) {
-    if(current->d_name[0] > '0' && current->d_name[0] <= '9')
-       proc_count++; 
-    current = readdir(dir);
+        if(current->d_name[0] > '0' && current->d_name[0] <= '9')
+            proc_count++; 
+        current = readdir(dir);
     }
     closedir(dir);
     dir_count("/proc", &total_count);
     printf("Number of processes: %d\n", proc_count);
     printf("Total count: %d\n", total_count);
+    return 0;
 }
 
