@@ -11,11 +11,14 @@
 int main (int argc, char* argv[]) {
 	struct dirent *current;
     DIR *dir;
+    int proc_count = 0;
     dir = opendir("/proc");
     current = readdir(dir);
     while(current != NULL) {
-    puts(current->d_name);
+    if(current->d_name[0] > '0' && current->d_name[0] <= '9')
+       proc_count++; 
     current = readdir(dir);
     }
+    printf("Number of processes: %d\n", proc_count);
 }
 
